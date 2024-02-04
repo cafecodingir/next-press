@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  fname     String?
+  lname     String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  posts     Post[]
+  comments  Comment[]
+}
+
+model Post {
+  id          Int        @id @default(autoincrement())
+  categoryId  Int?
+  userId      Int?
+  title       String     @unique
+  content     String?    @db.Text
+  imageUrl    String?
+  category    String?
+  status      PostStatus @default(draft)
+  createdAt   DateTime?  @default(now())
+  updatedAt   DateTime?  @updatedAt
+  comments    Comment[]
+  attachments File[]
+  Category    Category?  @relation(fields: [categoryId], references: [id])
+  User        User?      @relation(fields: [userId], references: [id])
+}
+
+model Category {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique
+  posts      Post[]
+  parentId   Int?
+  categories Category[] @relation(name: "parentId")
+  Category   Category?  @relation(name: "parentId", fields: [parentId], references: [id])
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  content   String    @db.Text
+  postId    Int?
+  userId    Int?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  Post      Post?     @relation(fields: [postId], references: [id])
+  User      User?     @relation(fields: [userId], references: [id])
+}
+
+model File {
+  id     Int      @id @default(autoincrement())
+  title  String?
+  url    String
+  type   FileType
+  postId Int?
+  Post   Post?    @relation(fields: [postId], references: [id])
+}
+
+enum PostStatus {
+  draft
+  publish
+  trash
+}
+
+enum FileType {
+  cataloge
+  article
+  form
+  image
+}

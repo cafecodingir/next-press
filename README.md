@@ -1,2 +1,1 @@
-# next-press
-next generation of wordpress
+This is an alternative to WordPress!
